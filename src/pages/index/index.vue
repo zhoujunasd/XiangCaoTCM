@@ -23,6 +23,8 @@
     </form>
 
     <a href="/pages/counter/main" class="counter">去往Vuex示例页面</a>
+    <a href="/pages/homePage/main" class="counter">去往首页示例页面</a>
+    
 
     <div class="all">
         <div class="left">

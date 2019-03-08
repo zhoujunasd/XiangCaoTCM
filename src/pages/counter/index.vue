@@ -4,6 +4,8 @@
     <p>
       <button @click="increment">+</button>
       <button @click="decrement">-</button>
+      <button @click="decrement">-</button>
+      <button @click="decrement">-</button>
     </p>
   </div>
 </template>
