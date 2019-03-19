@@ -1,9 +1,11 @@
 {
   "pages": [
+    "pages/personalCenter/main",
+
+    "pages/myOrder/main",
+    
     "pages/homePage/main",
     "pages/myDoctor/main",
-    "pages/myOrder/main",
-    "pages/personalCenter/main",
 
     "pages/index/main",
     "pages/logs/main",
@@ -12,7 +14,7 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#fff",
+    "navigationBarBackgroundColor": "#f7f7f7",
     "navigationBarTitleText": "香草智慧中医",
     "navigationBarTextStyle": "black"
   },

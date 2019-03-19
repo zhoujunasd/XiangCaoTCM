@@ -266,7 +266,7 @@ export default {
   background-image: url('../../../static/homePage/xxjbbg_little.png');
   background-repeat: no-repeat;
   background-size: 100% 100%;
-  padding: 0 40rpx;
+  padding: 0 30rpx;
   margin-bottom: 20rpx;
   margin-left: 20rpx;
   color: #62421c;
