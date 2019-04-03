@@ -30,9 +30,12 @@ export const net = {
     return new Promise((resolve, reject) => {
       wx.request({
         url: baseUrl + url,
-        data: {},
+        data: data,
         method: 'GET', // OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, CONNECT
-        // header: {}, // 设置请求的 header
+        header: {
+          'TENANT_ID': '1',
+          'Authorization': 'Bearer '+store.state.userTokenInfo.access_token,  //数据接口请求都必须带这个参数，用于到服务器端做认证
+        }, // 设置请求的 header
         success: function (res) {
           // success
           if (res.statusCode != 200) {

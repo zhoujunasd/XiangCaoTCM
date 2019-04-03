@@ -114,6 +114,19 @@ export default {
           })
         }
       });
+
+      // // =================通过微信关联服务端的登录======
+      // wx.login({
+      //   success: function(res){
+      //     console.log(res.code)
+      //   },
+      //   fail: function() {
+      //     // fail
+      //   },
+      //   complete: function() {
+      //     // complete
+      //   }
+      // })
     },
 
     crypto(){

@@ -13,7 +13,7 @@
         :interval='3000'>
         <block  v-for="(item,index) in imgUrls"  :key="index">
           <swiper-item>
-            <image class="swiper-image" :src="item"></image>
+            <image class="swiper-image" :src="item.PATH"></image>
           </swiper-item>
         </block>
       </swiper>
@@ -23,12 +23,12 @@
     </div>
     <!-- 顶部轮播图end -->
     <!-- 功能区域start -->
-    <div class="second-column">
-      <div class="image-wrap">
+    <div class="second-column" >
+      <div class="image-wrap" @click="navigateToHtmlPage(2)">
         <image class="image-list" src='/static/homePage/zzgy.png' alt=''></image>
         <span>制作工艺</span>
       </div>
-      <div class="image-wrap">
+      <div class="image-wrap" @click="navigateToHtmlPage(1)">
         <image class="image-list" src='/static/homePage/gyxx.png' alt=''></image>
         <span>关于香雪</span>
       </div>
@@ -36,7 +36,7 @@
         <image class="image-list" src='/static/homePage/zxly.png' alt=''></image>
         <span>咨询留言</span>
       </div>
-      <div class="image-wrap">
+      <div class="image-wrap" @click="navigateToHelpList">
         <image class="image-list" src='/static/homePage/sybz.png' alt=''></image>
         <span>使用指南</span>
       </div>
@@ -52,12 +52,12 @@
         :autoplay="true" 
         :interval='3000'>
         <block v-for="(item, index) in titleList" :key='index'>
-          <swiper-item>
-            <p>{{item}}</p>
+          <swiper-item @click="navigateToNews(index)">
+            <p class="news-title">{{item.name}}</p>
           </swiper-item>
         </block>
       </swiper>
-      <div class="swiper-image-wrap">
+      <div class="swiper-image-wrap" @click="navigateToNewList">
         <image class="swiper-image-right" src='/static/homePage/more.png'></image>
       </div>
     </div>
@@ -94,17 +94,17 @@
       <block v-for="(item,index) in doucterList" :key="index">
         <div class="message-wrap">
           <div class="top-message-wrap">
-            <image class="head-image" :src=item.image></image>
+            <image class="head-image" :src=item.wx_icon></image>
             <div class="right-message-wrap">
               <div class="basic-message-wrap">
-                <div class="name-wrap"><span>{{item.name}}</span></div>
-                <div class="job-wrap"><span>{{item.zhize}}</span></div>
+                <div class="name-wrap"><span>{{item.NAME}}</span></div>
+                <div class="job-wrap"><span>{{item.TITLE}}</span></div>
               </div>
-              <div class="city-wrap"><span>{{item.city}}</span></div>
+              <div class="city-wrap"><span>{{item.HOSPITAL}}</span></div>
             </div>
           </div>
           <div class="illness-wrap" >
-            <block v-for="(item1, index1) in item.illList" :key="index1">
+            <block v-for="(item1, index1) in item.VLABEL" :key="index1">
               <span class="illness-list-item">{{item1}}</span>
             </block>
           </div>
@@ -119,36 +119,106 @@
 export default {
   data() {
     return {
-      imgUrls: [
-        "http://mss.sankuai.com/v1/mss_51a7233366a4427fa6132a6ce72dbe54/newsPicture/05558951-de60-49fb-b674-dd906c8897a6",
-        "http://mss.sankuai.com/v1/mss_51a7233366a4427fa6132a6ce72dbe54/coursePicture/0fbcfdf7-0040-4692-8f84-78bb21f3395d",
-        "http://mss.sankuai.com/v1/mss_51a7233366a4427fa6132a6ce72dbe54/management-school-picture/7683b32e-4e44-4b2f-9c03-c21f34320870"
-      ],
-      titleList:　[
-        '关于qweqweq',
-        '对流感say no qweqweqwe',
-        '本周六qwewqeqweqwqw'
-      ],
-      illnessList: [
-        '冠心病','脑心病','颈椎病','风湿病','麻疹','头晕','感冒','肺癌'
-      ],
-      doucterList: [
-        {
-          image: 'http://mss.sankuai.com/v1/mss_51a7233366a4427fa6132a6ce72dbe54/newsPicture/05558951-de60-49fb-b674-dd906c8897a6',
-          name: '李际强',
-          zhize: '主任医师',
-          city: '广东省中医',
-          illList: ['呼吸系统', '感染性疾病'],
-        }, {
-          image: 'http://mss.sankuai.com/v1/mss_51a7233366a4427fa6132a6ce72dbe54/newsPicture/05558951-de60-49fb-b674-dd906c8897a6',
-          name: '李际强',
-          zhize: '主任医师',
-          city: '广东省中医',
-          illList: ['呼吸系统', '感染性疾病', '感染性染性疾疾病', '感染性染性疾疾病', '感染性疾病'],
-        }
-      ]
+      imgUrls: [ ], // 轮播图列表数据
+      titleList:　[ ],
+      illnessList: [ ], //病症列表
+      doucterList: [ ], //推荐医生列表数据
+      cur_page: 2, //页面
+      rows: 4, //一次请求数据的行数
     };
-  }
+  },
+  onLoad(){ //推荐在此周期内获取数据，
+    this.getDatas()
+  },  
+  methods: {
+    getDatas(){
+      this.$net.post("/user/index").then(res => {
+        console.log(res)
+        this.imgUrls = res.body.imgs;
+        this.illnessList = res.body.virtueList;
+        // forEach不能使用break中断循环，不能使用return语句返回到外层函数，map支持return返回值
+        // res.body.randomDocList.forEach(item => {
+        //   item.VLABEL = item.VLABEL.split(',')
+        // })
+        // this.doucterList = res.body.randomDocList
+        this.doucterList = res.body.randomDocList.map(item => {
+          item.VLABEL = item.VLABEL.split(',')
+          return item
+        })
+      })
+      this.$net.get(`/doctor/getNewsList?cur_page=1&newsType=1&rows=5`).then(res => {
+        console.log(res.body)
+        this.titleList = res.body.newsList
+        // 将新闻列表数据存储进vuex
+        this.$store.commit('GET_NEWS_INFO',this.titleList)
+      })
+    },
+    // 跳转至显示html的页面，制作工艺和关于香雪，页面顶部有一个图片，和其他的不一样，
+    navigateToHtmlPage(typeId){
+      wx.navigateTo({
+        url: `/pages/htmlPage/main?typeId=${typeId}`,
+        success: function(res){
+          // success
+        },
+        fail: function() {
+          // fail
+        },
+        complete: function() {
+          // complete
+        }
+      })
+    },
+    // 跳转至使用指南列表页面 
+    navigateToHelpList(){
+      wx.navigateTo({
+        url: `/pages/helpList/main`,
+        success: function(res){
+          // success
+        },
+        fail: function() {
+          // fail
+        },
+        complete: function() {
+          // complete
+        }
+      })
+    },
+    // html跳转至新闻页面
+    navigateToNews(typeId){
+      wx.navigateTo({
+        url: `/pages/helpHtmlPage/main?state=1&typeId=${typeId}`,
+        success: function(res){
+          // success
+        },  
+        fail: function() {
+          // fail
+        },
+        complete: function() {
+          // complete
+        }
+      })
+    },
+    // 跳转至新闻列表页面
+    navigateToNewList(){
+      wx.navigateTo({
+        url: `/pages/newsListPage/main`,
+        success: function(res){
+          // success
+        },
+        fail: function() {  // fail
+        },
+      })
+    },
+  },
+ 
+  onReachBottom(){ //上拉加载更多推荐医生
+    this.$net.get(`/user/findRandomDoctorList?cur_page=${this.cur_page}&rows=${this.rows}`).then(res => {
+      if(res.body.randomDoctorList == 0){
+        
+      }
+      this.cur_page++
+    })
+  },
 };
 </script>
 
@@ -316,5 +386,11 @@ export default {
 .illness-wrap{
   display: inline-flex;
   flex-wrap: wrap;
+}
+/* 实现单行内多余胜率改为省略号 */
+.news-title{
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
 }
 </style>

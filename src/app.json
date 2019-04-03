@@ -1,11 +1,14 @@
 {
   "pages": [
     "pages/personalCenter/main",
-
     "pages/myOrder/main",
-    
     "pages/homePage/main",
     "pages/myDoctor/main",
+    "pages/htmlPage/main",
+    "pages/helpList/main",
+    "pages/helpHtmlPage/main",
+    "pages/newsListPage/main",
+    "pages/searchDoctorPage/main",
 
     "pages/index/main",
     "pages/logs/main",

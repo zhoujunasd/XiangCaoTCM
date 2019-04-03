@@ -1,10 +1,25 @@
 <template>
   <div class="pay-wrap">
     <div class="prepaid">
-      <div class="non-payment">未付款</div>
-      <div class="paied-wrap">已支付</div>
+      <radio-group class="radio-group" @change="handleClickPay">
+        <label class="non-payment">
+          <radio  :value="1" />未付款
+        </label>
+        <label class="paied-wrap">
+          <radio :value="2" /> 已支付
+        </label>
+      </radio-group>
     </div>
-    
+    <block v-if='isPay'>
+      <div class="">
+        未付款
+      </div>
+    </block>
+    <block v-if="!isPay">
+      <div>
+        已付款
+      </div>
+    </block>
     <div class="no-more">
       <span>没有更多数据了</span>
     </div>
@@ -14,9 +29,19 @@
 <script>
 export default {
   data() {
-    return {};
+    return {
+      isPay: true,
+    };
   },
-  methods: {},
+  methods: {
+    handleClickPay(e){
+      if(e.target.value == 1){
+        this.isPay = true 
+      } else {
+        this.isPay = false 
+      }
+    }
+  },
   watch: {},
   computed: {},
   created() {}
@@ -24,8 +49,14 @@ export default {
 </script>
 
 <style scope lang='scss'>
-.prepaid{
+.non-payment radio,.paied-wrap radio{
+  display: none;
+}
+
+.radio-group{
   display: flex;
+  width: 100%;
+  height: 100%;
   text-align: center;
   font-size: 32rpx;
   height: 80rpx;
@@ -34,6 +65,7 @@ export default {
   border-bottom: 1rpx solid #c8c7cc;
 
   .non-payment{
+    color: #007aff;
     flex: 1;
   }
   .paied-wrap{
@@ -50,4 +82,5 @@ export default {
   background-color: #efeff4;
   text-align: center;
 }
+
 </style> 
