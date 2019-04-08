@@ -9,6 +9,7 @@
     "pages/helpHtmlPage/main",
     "pages/newsListPage/main",
     "pages/searchDoctorPage/main",
+    "pages/docDetail/main",
 
     "pages/index/main",
     "pages/logs/main",

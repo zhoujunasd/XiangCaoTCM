@@ -67,14 +67,15 @@
       <div class="find-icon-wrap">
         <icon class="find-icon" type='search' size='32rpx' color='#000'></icon>
       </div>
-      <input class="find-text" type="text" 
+      <input class="find-text" type="text"
+        v-model="doctorSearch"
         placeholder='请输入您的症状或医生名称'
         placeholder-style='font-size:32rpx;color:#a9a9a9'
         confirm-type='search'>
       <div class="yuyin-icon-wrap">
         <image src='/static/homePage/yuyinshuru.png'></image>
       </div>
-      <div class="sousuo-button">
+      <div class="sousuo-button" @click="navigateToSearchPage">
         <span>搜索</span>
       </div>
     </div>
@@ -82,7 +83,7 @@
     <!-- 症状医生提示栏start -->
     <div class="illness-list">
       <block v-for="(item, index) in illnessList" :key="index">
-        <span class="illness-list-item">{{item}}</span>
+        <span @click="illnessClick(item)" class="illness-list-item">{{item}}</span>
       </block>
     </div>
     <!-- 症状医生提示栏end -->
@@ -125,6 +126,7 @@ export default {
       doucterList: [ ], //推荐医生列表数据
       cur_page: 2, //页面
       rows: 4, //一次请求数据的行数
+      doctorSearch: '',//要搜索的医生名字或者症状
     };
   },
   onLoad(){ //推荐在此周期内获取数据，
@@ -209,8 +211,30 @@ export default {
         },
       })
     },
+    // 跳转至医生搜索页面
+    navigateToSearchPage(){
+      console.log(this.doctorSearch)
+      wx.navigateTo({
+        url: `/pages/searchDoctorPage/main?searchText=${this.doctorSearch}`,
+        success: function(res){
+          // success
+        },
+        fail: function() {
+          // fail
+        },
+        complete: function() {
+          // complete
+        }
+      })
+
+    },
+    // 推荐症状，点击搜索功能
+    illnessClick(e){
+      wx.navigateTo({
+        url: `/pages/searchDoctorPage/main?searchText=${e}`,
+      })
+    }
   },
- 
   onReachBottom(){ //上拉加载更多推荐医生
     this.$net.get(`/user/findRandomDoctorList?cur_page=${this.cur_page}&rows=${this.rows}`).then(res => {
       if(res.body.randomDoctorList == 0){
