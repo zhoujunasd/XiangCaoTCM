@@ -13,7 +13,8 @@
           confirm-type='search'
           @focus="inputFocus"
           @blur="inputBlur"
-          @input="inputFun">
+          @input="inputFun"
+          @confirm='confirmFun'>
         <div v-if="isShow" class="find-icon-wrap" @click="clearClick">
             <icon class="clear-icon" type='clear' size='32rpx' color='#999'></icon>
         </div>
@@ -23,7 +24,7 @@
     <!-- 推荐医生显示start -->
     <div class="doctor-message-wrap">
       <block v-for="(item,index) in docList" :key="index" >
-        <div class="message-wrap" @click="navToDocDetail(item)">
+        <div class="message-wrap" @click="navToDocDetail(item.ID)">
           <div class="top-message-wrap">
             <img class="head-image" :src="item.wx_icon" @error="errorfun(index)">
             <div class="right-message-wrap">
@@ -71,10 +72,13 @@ export default {
     };
   },
   // 获取数据以及初始化页面数据，第二次加载此页面时，数据不会初始化
+  // 初始化页面管理数据
   onLoad(options) {
     // console.log(options)
     this.searchName = options.searchText
-    this.page = 1
+    this.page = 1;
+    this.hasData = false;
+    this.loading = true;
     this.getData(options);
     this.docList = [];
   },
@@ -160,7 +164,7 @@ export default {
     navToDocDetail(e){
         console.log(e);
         wx.navigateTo({
-            url: `/pages/docDetail/main`,
+            url: `/pages/docDetail/main?ID=${e}`,
             success: function(res){
                 // success
             },
@@ -171,6 +175,16 @@ export default {
                 // complete
             }
         })
+    },
+    confirmFun(){
+      let data = {
+        searchText: this.searchName
+      };
+      this.docList = [];
+      this.page = 1;
+      this.hasData = false;
+      this.loading = true;
+      this.getData(data);
     }
   }
 };
@@ -188,7 +202,7 @@ export default {
 .doctor-message-wrap {
   box-sizing: border-box;
   padding: 10rpx 10rpx 0;
-  margin-bottom: 10rpx;
+  // margin-bottom: 10rpx;
   background-color: #fff;
 
   .message-wrap {

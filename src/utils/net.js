@@ -61,9 +61,10 @@ export const net = {
     return new Promise((resolve, reject) => {
       wx.request({
         url: baseUrl + url,
-        data: data,
+        data,
         method: 'POST', 
         header: {
+          'Content-Type': 'application/x-www-form-urlencoded',
           'TENANT_ID': '1',
           'Authorization': 'Bearer'+store.state.userTokenInfo.access_token,  //数据接口请求都必须带这个参数，用于到服务器端做认证
         }, // 设置请求的 header

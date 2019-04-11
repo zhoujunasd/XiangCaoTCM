@@ -17,6 +17,7 @@ export default {
     };
   },
   onLoad(options) {
+    this.htmlData = '加载中...';
     // console.log(options);
     this.$net.get(`/user/spage?typeId=${options.typeId}`).then(res => {
         console.log(res)

@@ -71,7 +71,8 @@
         v-model="doctorSearch"
         placeholder='请输入您的症状或医生名称'
         placeholder-style='font-size:32rpx;color:#a9a9a9'
-        confirm-type='search'>
+        confirm-type='search'
+        @confirm='navigateToSearchPage'>
       <div class="yuyin-icon-wrap">
         <image src='/static/homePage/yuyinshuru.png'></image>
       </div>
@@ -93,7 +94,7 @@
     <!-- 推荐医生start -->
     <div class="doctor-message-wrap">
       <block v-for="(item,index) in doucterList" :key="index">
-        <div class="message-wrap">
+        <div class="message-wrap" @click="navigateToDocDetail(item.ID)">
           <div class="top-message-wrap">
             <image class="head-image" :src=item.wx_icon></image>
             <div class="right-message-wrap">
@@ -113,6 +114,12 @@
       </block>
     </div>
     <!-- 推荐医生end -->
+    <!-- 加载底部提示更多start -->
+    <div v-if="isShow" class="bottom-wrap">
+      <div class="more-data" v-if="isLoading">上拉加载更多</div>
+      <div class="no-more" v-else>没有更多数据了</div>
+    </div>
+    <!-- 加载底部提示更多end -->
   </div>
 </template>
 
@@ -124,16 +131,22 @@ export default {
       titleList:　[ ],
       illnessList: [ ], //病症列表
       doucterList: [ ], //推荐医生列表数据
-      cur_page: 2, //页面
-      rows: 4, //一次请求数据的行数
+      cur_page: 1, //页面
+      rows: 9, //一次请求数据的行数
       doctorSearch: '',//要搜索的医生名字或者症状
+      hasData: true,//判断是否加载更多
+      isLoading: true,//加载
+      isShow: false,//优化，数据加载慢时，先显示底部提示问题
     };
   },
   onLoad(){ //推荐在此周期内获取数据，
     this.getDatas()
   },  
   methods: {
+    // 获取首页数据
     getDatas(){
+      this.hasData = true
+      this.isLoading = true
       this.$net.post("/user/index").then(res => {
         console.log(res)
         this.imgUrls = res.body.imgs;
@@ -147,6 +160,7 @@ export default {
           item.VLABEL = item.VLABEL.split(',')
           return item
         })
+        this.isShow = true
       })
       this.$net.get(`/doctor/getNewsList?cur_page=1&newsType=1&rows=5`).then(res => {
         console.log(res.body)
@@ -159,56 +173,32 @@ export default {
     navigateToHtmlPage(typeId){
       wx.navigateTo({
         url: `/pages/htmlPage/main?typeId=${typeId}`,
-        success: function(res){
-          // success
-        },
-        fail: function() {
-          // fail
-        },
-        complete: function() {
-          // complete
-        }
+        success: function(res){ },
+        fail: function() { },
       })
     },
     // 跳转至使用指南列表页面 
     navigateToHelpList(){
       wx.navigateTo({
         url: `/pages/helpList/main`,
-        success: function(res){
-          // success
-        },
-        fail: function() {
-          // fail
-        },
-        complete: function() {
-          // complete
-        }
+        success: function(res){ },
+        fail: function() { },
       })
     },
     // html跳转至新闻页面
     navigateToNews(typeId){
       wx.navigateTo({
         url: `/pages/helpHtmlPage/main?state=1&typeId=${typeId}`,
-        success: function(res){
-          // success
-        },  
-        fail: function() {
-          // fail
-        },
-        complete: function() {
-          // complete
-        }
+        success: function(res){ },  
+        fail: function() { },
       })
     },
     // 跳转至新闻列表页面
     navigateToNewList(){
       wx.navigateTo({
         url: `/pages/newsListPage/main`,
-        success: function(res){
-          // success
-        },
-        fail: function() {  // fail
-        },
+        success: function(res){ },
+        fail: function() { },
       })
     },
     // 跳转至医生搜索页面
@@ -216,32 +206,42 @@ export default {
       console.log(this.doctorSearch)
       wx.navigateTo({
         url: `/pages/searchDoctorPage/main?searchText=${this.doctorSearch}`,
-        success: function(res){
-          // success
-        },
-        fail: function() {
-          // fail
-        },
-        complete: function() {
-          // complete
-        }
+        success: function(res){ },
+        fail: function() { },
       })
 
     },
-    // 推荐症状，点击搜索功能
+    // 推荐症状，点击搜索功能,跳转至医生推荐页面
     illnessClick(e){
       wx.navigateTo({
         url: `/pages/searchDoctorPage/main?searchText=${e}`,
       })
-    }
+    },
+    // 跳转至医生详情页面
+    navigateToDocDetail(e){
+      
+      wx.navigateTo({
+        url: `/pages/docDetail/main?ID=${e}`,
+        success: function(res){ },
+        fail: function() { },
+      })
+    },
   },
   onReachBottom(){ //上拉加载更多推荐医生
-    this.$net.get(`/user/findRandomDoctorList?cur_page=${this.cur_page}&rows=${this.rows}`).then(res => {
-      if(res.body.randomDoctorList == 0){
-        
-      }
-      this.cur_page++
-    })
+    if(this.hasData == true){
+      this.$net.get(`/user/findRandomDoctorList?cur_page=${this.cur_page}&rows=${this.rows}`)
+        .then(res => {
+          console.log('reach',res)
+          this.doucterList = res.body.randomDoctorList.map(item => {
+            item.VLABEL = item.VLABEL.split(',')
+            return item
+          })
+          this.isLoading = false
+          this.hasData = false
+        })
+    } else {
+      console.log('已加载完');
+    }
   },
 };
 </script>
@@ -370,6 +370,8 @@ export default {
 .line-wrap image{
   width: 100%;
   height: 50rpx;
+  background-color: #efeff4;
+  padding: 10rpx 0 10rpx;
 }
 .doctor-message-wrap{
   box-sizing: border-box;
@@ -417,4 +419,15 @@ export default {
   text-overflow:ellipsis;
   white-space: nowrap;
 }
+.bottom-wrap{
+  height: 70rpx;
+  line-height: 70rpx;
+  font-size: 28rpx;
+  font-weight: bolder;
+  color: #858586;
+  text-align: center;
+  background-color: #efeff4;
+  margin-top:-10rpx;
+}
+
 </style>

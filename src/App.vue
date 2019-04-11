@@ -26,6 +26,10 @@ export default {
   },
   log () {
     console.log(`log at:${Date.now()}`)
+  },
+  // **捕获 app error
+  onErrow(err){
+    console.log(err)
   }
 }
 </script>
