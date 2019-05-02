@@ -32,7 +32,7 @@
         <image class="image-list" src='/static/homePage/gyxx.png' alt=''></image>
         <span>关于香雪</span>
       </div>
-      <div class="image-wrap">
+      <div class="image-wrap" @click="navigateToConsultPage">
         <image class="image-list" src='/static/homePage/zxly.png' alt=''></image>
         <span>咨询留言</span>
       </div>
@@ -96,7 +96,7 @@
       <block v-for="(item,index) in doucterList" :key="index">
         <div class="message-wrap" @click="navigateToDocDetail(item.ID)">
           <div class="top-message-wrap">
-            <image class="head-image" :src=item.wx_icon></image>
+            <image class="head-image" :src=item.wx_icon @error="imgError(index)"></image>
             <div class="right-message-wrap">
               <div class="basic-message-wrap">
                 <div class="name-wrap"><span>{{item.NAME}}</span></div>
@@ -143,6 +143,10 @@ export default {
     this.getDatas()
   },  
   methods: {
+    imgError(e){
+      // console.log(e); // 错误图片索引
+      this.doucterList[e].wx_icon = "/static/images/errorImg.png";
+    },
     // 获取首页数据
     getDatas(){
       this.hasData = true
@@ -167,6 +171,15 @@ export default {
         this.titleList = res.body.newsList
         // 将新闻列表数据存储进vuex
         this.$store.commit('GET_NEWS_INFO',this.titleList)
+      })
+    },
+    // 跳转至咨询留言页面
+    navigateToConsultPage(){
+      wx.navigateTo({
+        url: '/pages/consultPage/main',
+        success: function(res){ },
+        fail: function() { },
+        complete: function() { }
       })
     },
     // 跳转至显示html的页面，制作工艺和关于香雪，页面顶部有一个图片，和其他的不一样，
@@ -219,7 +232,6 @@ export default {
     },
     // 跳转至医生详情页面
     navigateToDocDetail(e){
-      
       wx.navigateTo({
         url: `/pages/docDetail/main?ID=${e}`,
         success: function(res){ },
@@ -304,7 +316,7 @@ export default {
   width: 48rpx;
 }
 .swiper-image-right{
-  padding-right: 54rpx;
+  padding-right: 50rpx;
   height: 48rpx;
   width: 114rpx;
 }

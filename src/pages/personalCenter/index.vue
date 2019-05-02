@@ -2,10 +2,10 @@
   <div class="content-wrap">
     <!-- 顶部图标和信息start -->
       <view class="top-wrap">
-        <image class="image-wrap" src='/static/images/user.png'></image>
+        <image class="image-wrap" :src='customerInfo.WX_ICON' @error="imgError(e)"/>
         <div class="message-wrap">
-          <span class="name-wrap">晓月<span class="annotation-wrap">(普通用户)</span></span>
-          <span class="tele-wrap">18438603987</span>
+          <span class="name-wrap">{{customerInfo.WX_NICKNAME}}<span class="annotation-wrap">(普通用户)</span></span>
+          <span class="tele-wrap">{{customerInfo.TEL}}</span>
         </div>
       </view>
       <!-- 顶部图标和信息end -->
@@ -22,6 +22,15 @@
           </div>
           <icon class="right-icon-wrap" ></icon>
         </div> -->
+        <navigator class="specific-fun"
+          url="/pages/personalInfo/main"
+          open-type="navigate">
+          <div class="left-wrap">
+            <image class="icon-wrap" src='/static/perCenter/wdyy.png'></image>
+            <span class="navi-wrap">个人信息</span>
+          </div>
+          <icon class="right-icon-wrap" ></icon>
+        </navigator>
         <navigator class="specific-fun"
           url="/pages/counter/main"
           open-type="navigate">
@@ -50,7 +59,7 @@
           <icon class="right-icon-wrap" ></icon>
         </navigator>
         <navigator class="specific-fun"
-          url="/pages/counter/main"
+          url="/pages/helpList/main?"
           open-type="navigate">
           <div class="left-wrap">
             <image class="icon-wrap" src='/static/perCenter/syzn.png'></image>
@@ -59,7 +68,7 @@
           <icon class="right-icon-wrap"></icon>
         </navigator>
         <navigator class="specific-fun"
-          url="/pages/counter/main"
+          url='/pages/htmlPage/main?typeId=4'
           open-type="navigate">
           <div class="left-wrap">
             <image class="icon-wrap" src='/static/perCenter/lxkf.png'></image>
@@ -67,17 +76,16 @@
           </div>
           <icon class="right-icon-wrap"></icon>
         </navigator>
-        <navigator class="specific-fun"
-          url="/pages/counter/main"
-          open-type="navigate">
+        <div class="specific-fun div-click"
+          @click="navigateClick">
           <div class="left-wrap">
             <image class="icon-wrap" src='/static/perCenter/glys.png'></image>
             <span class="navi-wrap">关联医生</span>
           </div>
           <icon class="right-icon-wrap"></icon>
-        </navigator>
+        </div>
         <navigator class="specific-fun"
-          url="/pages/counter/main"
+          url="/pages/consultPage/main"
           open-type="navigate">
           <div class="left-wrap">
             <image class="icon-wrap" src='/static/perCenter/yjfk.png'></image>
@@ -92,16 +100,20 @@
 
 <script>
 import { LoginByAdmin } from '@/utils/net'
-import { Encrypt } from '@/utils/aes'
+// import { Encrypt } from '@/utils/aes'
 import { Server } from 'http';
 
 export default {
   data() {
-    return {};
+    return {
+      // loginData: {}, //登录获取的数据，三级数据，会报错
+      customerInfo: {}, //用户登录信息
+      doctorInfo: {}, //医生登录信息
+    };
   },
-  mounted() {
-      this.LoginByAdmin()
-      // this.crypto()
+  onLoad(){
+    this.LoginByAdmin()
+    // this.crypto()
   },
   methods: {
     LoginByAdmin(){ 
@@ -110,11 +122,14 @@ export default {
       LoginByAdmin().then(res => {
         if(res == 200){
           this.$net.post("/login/getUserInfo").then(res => {
-            console.log(res)
+            console.log('登录',res)
+            this.customerInfo  = res.body.customerInfo
+            this.doctorInfo  = res.body.doctorInfo
+            // 本地存储登录获取的信息
+            this.$store.commit('GET_LOGIN_DATA', res.body)
           })
         }
       });
-
       // // =================通过微信关联服务端的登录======
       // wx.login({
       //   success: function(res){
@@ -128,12 +143,27 @@ export default {
       //   }
       // })
     },
-
-    crypto(){
-      let asd = Encrypt(123456);
-      console.log(asd);
-      console.log(escape(asd));//escape()对字符串进行编码，unescape()解码
+    // 
+    imgError(){
+      console.log('err',e)
+      this.loginData.customerInfo.WX_ICON = "/static/images/errorImg.png";
     },
+    navigateClick(e){
+      console.log('1',e);
+      wx.scanCode({
+        onlyFromCamera: true,//只允许从相机扫码
+        scanType: ['qrCode'],//扫码类型
+        success: (res)=>{
+          console.log('scanCode',res);
+        }
+      })
+    },
+    // 对账号密码加密
+    // crypto(){
+    //   let asd = Encrypt(123456);
+    //   console.log(asd);
+    //   console.log(escape(asd));//escape()对字符串进行编码，unescape()解码
+    // },
   },
   watch: {},
   computed: {},
@@ -168,6 +198,7 @@ export default {
     flex-direction: column;
     font-size: 32rpx;
     color: #fff;
+    text-align: center;
   }
 }
 .fun-wrap{
@@ -199,5 +230,8 @@ export default {
       transform: rotate(-45deg);
     }
   }
+}
+.div-click:active{
+  background-color: #ededed;
 }
 </style> 

@@ -9,7 +9,6 @@
         <div class="right-icon-wrap"></div>
       </div>
     </block>
-
   </div>
 </template>
 

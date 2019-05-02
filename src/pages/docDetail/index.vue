@@ -7,7 +7,7 @@
             </div>
             <span class="top-page-name">医生详情</span>
             <div class="attention-wrap">
-                <div v-if="!isLoading"  @click="attentionClick(doctorMessage.ID)">{{docList.isFollow ? '关注':'取消关注'}}</div>
+                <div v-if="!isLoading"  @click="attentionClick(doctorMessage.ID)">{{docList.isFollow ? '取消关注':'关注'}}</div>
             </div>
         </div>
         <!-- 顶部标题栏end -->
@@ -33,7 +33,7 @@
                     <img class="remind-img" src="/static/images/message.png" alt="">
                     <span class="lable-wrap">放号提醒</span>
                 </div>
-                <switch class="switch-class" @change="switchChang"></switch>
+                <switch class="switch-class" :checked='docList.isOutNumRemind' @change="switchChang(doctorMessage.ID)"></switch>
             </div>
             <div class="lable-contant border-wrap" >
                 <div class="icon-wrap">
@@ -94,7 +94,7 @@ export default {
         wx.getSystemInfo({
             success: function(res) {
                 console.log('系统信息',res);
-                that.navH = res.statusBarHeight + 30
+                that.navH = res.statusBarHeight + 35
             },
             fail: function(err) {
                 console.log(err);
@@ -127,16 +127,53 @@ export default {
         // 开关选择器事件
         switchChang(e){
             console.log(e);
-            
+            this.$net.post(`/user/outnum_remind`, {doctor_id: e}).then(res => {
+                console.log(res);
+            })
         },
         // 关注医生事件 
         attentionClick(e){
-            console.log(e);
-            
-            this.$net.post(`/user/follow`, {doctor_id: e}).then(res => {
-                console.log(res);
-                
-            })            
+            const that = this
+            console.log(e,this.docList.isFollow);
+            if(this.docList.isFollow){
+                wx.showModal({
+                    title: '提示',
+                    content: '确认取消关注此医生？',
+                    confirmColor: '#1e89ff',
+                    cancelColor: '#1e89ff',
+                    success(res){
+                        if (res.confirm) {
+                            console.log('用户点击确定')
+                            that.$net.post(`/user/follow`, {doctor_id: e}).then(res => {
+                                console.log(res);
+                                that.docList.isFollow = false
+                            }) 
+                        } else if (res.cancel) {
+                            console.log('用户点击取消')
+                        }
+                    }
+                })
+            } else {
+                wx.showModal({
+                    title: '提示',
+                    content: '确认关注此医生？',
+                    confirmColor: '#1e89ff',
+                    cancelColor: '#1e89ff',
+                    success(res){
+                        if (res.confirm) {
+                            console.log('用户点击确定')
+                            that.$net.post(`/user/follow`, {doctor_id: e}).then(res => {
+                                console.log(res);
+                                if(res.body.success == true){
+                                    that.docList.isFollow = true
+                                }
+                            }) 
+                        } else if (res.cancel) {
+                            console.log('用户点击取消')
+                        }
+                    }
+                })
+            }
         }
     },
 }
@@ -153,7 +190,6 @@ export default {
 .contant{
     // margin-top: 80rpx;
     position:absolute;
-    // top:90px;
     right: 0;
     left: 0;
 }

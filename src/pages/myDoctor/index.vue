@@ -1,28 +1,35 @@
 <template>
   <div class="content-wrap">
-    <div class="doctor-message-wrap">
-      <block  v-for="(item,index) in doucterList"  :key="index">
-        <div class="message-wrap">
-          <div class="top-message-wrap">
-            <image  class="head-image"  :src=item.image></image>
-            <div class="right-message-wrap">
-              <div class="basic-message-wrap">
-                <div class="name-wrap"><span>{{item.name}}</span></div>
-                <div class="job-wrap"><span>{{item.zhize}}</span></div>
+    <div v-if="isLoading">
+      <img class="loading-img" src="/static/images/isLoading.svg" alt="">
+      <span>正在加载。。。</span>
+    </div>
+    <div v-else>
+      <div class="doctor-message-wrap">
+        <block  v-for="(item,index) in newDoucterList" :key="index">
+          <div class="message-wrap" @click="navigateToDocPage(item.ID)">
+            <div class="top-message-wrap">
+              <image  class="head-image"  :src='item.wx_icon' @error="imgError(index)"></image>
+              <div class="right-message-wrap">
+                <div class="basic-message-wrap">
+                  <div class="name-wrap"><span>{{item.NAME}}</span></div>
+                  <div class="job-wrap"><span>{{item.TITLE}}</span></div>
+                </div>
+                <div class="city-wrap"><span>{{item.HOSPITAL}}</span></div>
               </div>
-              <div class="city-wrap"><span>{{item.city}}</span></div>
+            </div>
+            <div class="illness-wrap">
+              <block  v-for="(item1, index1) in item.VLABEL" :key="index1">
+                <span class="illness-list-item">{{item1}}</span>
+              </block>
             </div>
           </div>
-          <div class="illness-wrap">
-            <block  v-for="(item1, index1) in item.illList"  :key="index1">
-              <span class="illness-list-item">{{item1}}</span>
-            </block>
-          </div>
-        </div>
-      </block>
-    </div>
-    <div class="no-more">
-      <span>没有更多数据了</span>
+        </block>
+      </div>
+      <div class="no-more">
+        <div v-if="hasData">上拉加载更多</div>
+        <div v-else>没有更多数据了</div>
+      </div>
     </div>
   </div>
 </template>
@@ -31,24 +38,86 @@
 export default {
   data() {
     return {
-      doucterList: [
-        {
-          image: "http://mss.sankuai.com/v1/mss_51a7233366a4427fa6132a6ce72dbe54/newsPicture/05558951-de60-49fb-b674-dd906c8897a6",
-          name: "李际强",
-          zhize: "主任医师",
-          city: "广东省中医",
-          illList: ["呼吸系统", "感染性疾病", "肾功能系统疾病"]
-        },
-        {
-          image: "http://mss.sankuai.com/v1/mss_51a7233366a4427fa6132a6ce72dbe54/newsPicture/05558951-de60-49fb-b674-dd906c8897a6",
-          name: "黄明",
-          zhize: "主任医师",
-          city: "广东省中医"
-        }
-      ]
+      isLoading: true,//判断是否在加载中
+      hasData: true,//判断是否还有数据
+      curPage: 1,//页数
+      rows: 10,//行数
+      doucterList: [ ],//获取的数据
+      newDoucterList: [ ],//获取的数据
+      islock: false, //锁,onLoad加载时，不执行onShow
     };
   },
-  methods: {},
+  // 页面加载
+  onLoad(){
+    console.log('onLoad');
+    this.getData()
+  },
+  onHide(){
+    console.log('hide');
+    this.islock = true
+  },
+  onReady(){
+    console.log('ready');
+  },
+  onShow(){
+    if(this.islock){
+      // 每次跳转至此页面，刷新数据，初始化数据
+      this.doucterList = []
+      this.newDoucterList = []
+      this.isLoading = true
+      this.hasData = true
+      this.curPage = 1
+
+      this.getData()
+      console.log('onShow');
+    }
+  },
+  methods: {
+    // 获取数据
+    getData(){
+      this.$net.get(`/user/mydoctor/list/data?cur_page=${this.curPage}&rows=${this.rows}`)
+        .then(res => {
+          console.log(res);
+          this.isLoading = false
+          if(res.code == 200){
+            // this.doucterList = res.body.list
+            this.doucterList = res.body.list.map(item => {
+              if (item.wx_icon == null) {
+                item.wx_icon = "/static/images/errorImg.png";
+              }
+              if (item.VLABEL != null) {
+                item.VLABEL = item.VLABEL.split(",");
+              }
+              return item
+            })
+            this.newDoucterList = this.newDoucterList.concat(this.doucterList);
+            if(res.body.totalPage <= res.body.curPage){
+              this.hasData = false
+            }
+          }
+        })
+    },
+    // 图片获取失败时执行函数
+    imgError(e){
+      this.doucterList[e].wx_icon = "/static/images/errorImg.png";
+    },
+    // 跳转至医生详情页面
+    navigateToDocPage(e){
+      wx.navigateTo({
+        url: `/pages/docDetail/main?ID=${e}`,
+        success: function(res){ },
+        fail: function() { },
+      })
+    },
+  },
+
+  // 上拉加载事件
+  onReachBottom(){
+    if(this.hasData){
+      this.curPage++
+      this.getData()
+    }
+  },
   watch: {},
   computed: {},
   created() {}
@@ -59,6 +128,13 @@ export default {
 .content-wrap{
   height: 100vh;
   background-color: #efeff4;
+  text-align: center;
+
+  .loading-img{
+    width: 80rpx;
+    height: 80rpx;
+    vertical-align: middle;
+  }
 }
 .doctor-message-wrap {
   box-sizing: border-box;
@@ -130,11 +206,13 @@ export default {
 }
 
 .no-more{
-  height: 60rpx;
-  line-height: 60rpx;
+  margin-top:-5px;
+  height: 80rpx;
+  line-height: 80rpx;
   font-size: 28rpx;
   font-weight: bold;
   color: #858586;
+  background-color:#efeff4;
   text-align: center;
 }
 </style>

@@ -10,9 +10,10 @@ const store = new Vuex.Store({
   state: {
     count: 0,
     userTokenInfo: {}, //用户登录的token信息
-    helpInfoList: [], //html数据
+    helpInfoList: [], //制作工艺，关于香雪页面的html数据
     newsList: [], //新闻页面html数据
     htmlData: '',//从新闻列表页面进去的数据
+    loginData: {},//登录获取的数据
   },
   mutations: {
     increment: (state, value) => {
@@ -33,11 +34,14 @@ const store = new Vuex.Store({
       state.helpInfoList = value; 
     },
     GET_NEWS_INFO:(state, value) => {
-      state.newsList = value
+      state.newsList = value;
     },
     GET_NEWS_LIST:(state, value) => {
-      state.htmlData = value
-    }
+      state.htmlData = value;
+    },
+    GET_LOGIN_DATA:(state, value) => {
+      state.loginData = value;
+    },
   },
   // 计算属性，可以过滤计算store的值
   getters: {

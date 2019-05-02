@@ -13,7 +13,7 @@ export default {
   },
   onLoad(options) {
     console.log(options)
-    // state，0是使用指南，1是新闻
+    // state，0是使用指南，1是新闻，2是从新闻列表页进的新闻
     if(options.state == 0){
         this.htmlData = this.$store.state.helpInfoList[options.typeId].CONTENT
     } else if(options.state == 1){
@@ -21,6 +21,7 @@ export default {
     } else if(options.state == 2){
       this.htmlData = this.$store.state.htmlData
     }
+    // 对html数据内的img数据进行处理
       this.htmlData =  this.htmlData.replace(/\<img/gi, '<img style="max-width:100%;height:auto;" ')
   },
   components: {},

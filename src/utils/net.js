@@ -17,7 +17,7 @@ export function LoginByAdmin () {
         store.commit('GET_TOKEN_INFO',res.data); //将信息保存在全部变量中
         resolve(200)
       },
-      fail:function(err){
+      fail:function(error){
         reject(error)
       }
     })
@@ -47,7 +47,7 @@ export const net = {
           }
           resolve(res.data);
         },
-        fail: function () {
+        fail: function (error) {
           // fail
           reject(error)
         },
@@ -71,7 +71,7 @@ export const net = {
         success: function (res) { // success
           resolve(res.data)
         },
-        fail: function () { // fail
+        fail: function (error) { // fail
           reject(error)
         },
         complete: function () {

@@ -1,3 +1,4 @@
 {
-    "navigationBarTitleText": "我的醫生"
+    "navigationBarTitleText": "我的醫生",
+    "onReachBottomDistance": 40
 }

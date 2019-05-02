@@ -2,12 +2,13 @@
   <div class="news-wrap">
     <div class="top-wrap">
       <!-- :class="{active: isSwiper}" -->
-      <span v-bind:class="isSwiper == 0 ? 'activeClass' : ''">公司新闻</span>
-      <span v-bind:class="isSwiper == 1 ? 'activeClass' : ''">行业动态</span>
-      <span v-bind:class="isSwiper == 2 ? 'activeClass' : ''">领导视察</span>
+      <span @click="swiperTopClick(0)" v-bind:class="isSwiper == 0 ? 'activeClass' : ''">公司新闻</span>
+      <span @click="swiperTopClick(1)" v-bind:class="isSwiper == 1 ? 'activeClass' : ''">行业动态</span>
+      <span @click="swiperTopClick(2)" v-bind:class="isSwiper == 2 ? 'activeClass' : ''">领导视察</span>
     </div>
     <swiper
       class="swiper-wrap"
+      :current='isSwiper'
       :autoplay="false" 
       @change="swiperChange">
       <swiper-item>
@@ -79,6 +80,7 @@ export default {
     };
   },
   onLoad() {
+    this.isSwiper = 0
     this.getData();
   },
   onReachBottom(){
@@ -88,6 +90,7 @@ export default {
     getData() {
       const that = this
       this.loading = true
+      // 获取公司新闻
       this.$net.get(`/doctor/getNewsList?
         cur_page=${this.cur_page}&
         newsType=1&
@@ -99,11 +102,13 @@ export default {
             this.toMore = false
           }
         });
+        // 行业动态
       this.$net.get(`/doctor/getNewsList?
         cur_page=1&newsType=2&rows=5`).then(resdata => {
           console.log(2,resdata.body)
           this.newsList2 = resdata.body.newsList
         }).then(() => {
+          // 领导视察
            that.$net.get(`/doctor/getNewsList?
             cur_page=1&newsType=3&rows=5`).then(resdata2 => {
               console.log(3,resdata2.body)
@@ -115,6 +120,7 @@ export default {
       // console.log(event.target)
       this.isSwiper = event.target.current
     },
+    // 跳转至新闻详细信息页面
     navigateToNews(index){
       if(this.isSwiper == 0){
         this.$store.commit('GET_NEWS_LIST',this.newsList1[index].content)
@@ -126,7 +132,11 @@ export default {
       wx.navigateTo({
         url: `/pages/helpHtmlPage/main?state=2`,
       })
-    }
+    },
+    // 顶部点击切swiper
+    swiperTopClick(e){
+      this.isSwiper = e
+    },
   },
   watch: {},
   computed: {},
